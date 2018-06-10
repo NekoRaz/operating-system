@@ -87,9 +87,9 @@ void ult_yield()
 {
     if(!strncmp("done",current_thread. status , 4) == 0)
     {
-        current_thread = arrayPop(queue);
         current_thread.status = "wait";
         arrayPush(queue) = current_thread;
+        current_thread = arrayPop(queue);
     }
     swapcontext(&current_thread.gen, &current_thread.caller);
 }
