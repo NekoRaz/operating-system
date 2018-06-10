@@ -152,8 +152,7 @@ ssize_t ult_read(int fd, void* buf, size_t size)
     
     if (ready) {
         currentThread.status = "ready";
-        read(fd, buf, size);
-        return 0;
+        return read(fd, buf, size);
     }else{
         currentThread.status = "block";
         ult_yield();
