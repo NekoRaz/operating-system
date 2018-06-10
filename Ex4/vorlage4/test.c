@@ -4,7 +4,7 @@
 #include <time.h>
 
 #include "ult.h"
-/*
+
 static void threadA()
 {
 	ult_exit(0);
@@ -13,18 +13,17 @@ static void threadA()
 static void threadB()
 {
 	ult_exit(0);
-}*/
+}
 
 static void myInit()
 {
-	//int tids[2], i, status;
+	int tids[2], i, status;
 	
 	printf("spawn A\n");
-	//tids[0] = ult_spawn(threadA);
+	tids[0] = ult_spawn(threadA);
 	printf("spawn B\n");
-	//tids[1] = ult_spawn(threadB);
+	tids[1] = ult_spawn(threadB);
 
-/*
 	for (i = 0; i < 2; ++i)
 	{
 		printf("waiting for tids[%d] = %d\n", i, tids[i]);
@@ -37,12 +36,10 @@ static void myInit()
 		}
 		
 		printf("(status = %d)\n", status);
-	}*/
-
+	}
 	
-	//ult_exit(0);
+	ult_exit(0);
 }
-
 
 int main()
 {

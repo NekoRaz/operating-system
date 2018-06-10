@@ -24,7 +24,7 @@ typedef struct tcb_s
     char mem[STACK_SIZE];
 } tcb_t;
 
-int threadCounter = -1;
+int threadCounter;
 
 tcb_t* queue;
 tcb_t* queueFinished;
