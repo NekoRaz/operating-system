@@ -14,6 +14,7 @@
 
 int threadCounter = -1;
 array_hdr_t queue;
+array_hdr_t finishedThreads;
 
 /* thread control block */
 typedef struct tcb_s
