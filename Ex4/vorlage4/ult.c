@@ -29,7 +29,7 @@ int threadCounter;
 tcb_t* queue;
 tcb_t* queueFinished;
 
-tcb_t current_thread;
+tcb_t currentThread;
 //tcb_t* queueFinished;
 
 void ult_init(ult_f f)
@@ -46,13 +46,13 @@ void ult_init(ult_f f)
     thread.gen.uc_link = 0;
     thread.gen.uc_stack.ss_flags = 0;
     thread.gen.uc_stack.ss_size = STACK_SIZE;
-    thread.gen.uc_stack.ss_sp = current_thread.mem;
+    thread.gen.uc_stack.ss_sp = currentThread.mem;
     thread.status = "ready";
     thread.tid = threadCounter;
 
-    current_thread = thread;
+    currentThread = thread;
 
-    makecontext(&current_thread.gen, f, 0);
+    makecontext(&currentThread.gen, f, 0);
 }
 
 int ult_spawn(ult_f f)
@@ -61,23 +61,23 @@ int ult_spawn(ult_f f)
     threadCounter++;
 
     // initialize the context by cloning ours
-    getcontext(&current_thread.gen);
+    getcontext(&currentThread.gen);
 
     // create the new stack
-    current_thread.gen.uc_link = 0;
-    current_thread.gen.uc_stack.ss_flags = 0;
-    current_thread.gen.uc_stack.ss_size = STACK_SIZE;
-    current_thread.gen.uc_stack.ss_sp = current_thread.mem;
-    current_thread.status = "ready";
-    current_thread.tid = threadCounter;
+    currentThread.gen.uc_link = 0;
+    currentThread.gen.uc_stack.ss_flags = 0;
+    currentThread.gen.uc_stack.ss_size = STACK_SIZE;
+    currentThread.gen.uc_stack.ss_sp = currentThread.mem;
+    currentThread.status = "ready";
+    currentThread.tid = threadCounter;
 
-    if (current_thread.gen.uc_stack.ss_sp == NULL)
+    if (currentThread.gen.uc_stack.ss_sp == NULL)
         return -1;
 
     // modify the context
-    makecontext(&current_thread.gen, f, 0);
+    makecontext(&currentThread.gen, f, 0);
 
-    arrayPush(queue) = current_thread;
+    arrayPush(queue) = currentThread;
     
     // use threadCounter as thread id
     return threadCounter;
@@ -85,20 +85,20 @@ int ult_spawn(ult_f f)
 
 void ult_yield()
 {
-    if(!strncmp("done",current_thread. status , 4) == 0)
+    if(!strncmp("done",currentThread. status , 4) == 0)
     {
-        current_thread.status = "wait";
-        arrayPush(queue) = current_thread;
-        current_thread = arrayPop(queue);
+        currentThread.status = "wait";
+        arrayPush(queue) = currentThread;
+        currentThread = arrayPop(queue);
     }
-    swapcontext(&current_thread.gen, &current_thread.caller);
+    swapcontext(&currentThread.gen, &currentThread.caller);
 }
 
 void ult_exit(int status)
 {
-    current_thread.status = "done";
-    current_thread.exitCode = status;
-    arrayPush(queueFinished) = current_thread;
+    currentThread.status = "done";
+    currentThread.exitCode = status;
+    arrayPush(queueFinished) = currentThread;
     ult_yield();
 }
 
