@@ -13,12 +13,12 @@
 #define STACK_SIZE 64*1024
 
 int threadCounter = -1;
+array_hdr_t queue;
 
 /* thread control block */
 typedef struct tcb_s
 {
 	ucontext_t caller, gen;
-    tid;
 	void* yield;
 	char mem[STACK_SIZE];
 	/* data needed to restore the context */
@@ -30,7 +30,7 @@ void ult_init(ult_f f)
 {
     threadCounter = 0;
 
-	return 0;
+
 }
 
 int ult_spawn(ult_f f)
@@ -46,7 +46,8 @@ int ult_spawn(ult_f f)
     self->gen.uc_stack.ss_flags = 0;
     self->gen.uc_stack.ss_size = STACK_SIZE;
     self->gen.uc_stack.ss_sp = self->mem;
-    self->tid = threadCounter;
+    self->gen.status = "ready";
+    self->gen.tid = threadCounter
     
     if (self->gen.uc_stack.ss_sp == NULL)
         return -1;
