@@ -24,6 +24,8 @@ typedef struct tcb_s
 	/* data needed to restore the context */
 } tcb_t;
 
+tcb_t* current_thread;
+
 void ult_init(ult_f f)
 {
     threadCounter = 0;
@@ -55,7 +57,10 @@ int ult_spawn(ult_f f)
 }
 
 void ult_yield()
-{}
+{
+	current_thread->yield = yield;
+	swapcontext(&current_thread->gen, &current_thread->caller);
+}
 
 void ult_exit(int status)
 {}
