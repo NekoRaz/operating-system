@@ -90,11 +90,17 @@ void ult_yield()
     {
         currentThread.status = "wait";
         arrayPush(queue) = currentThread;
-        currentThread = arrayPop(queue);
+        if (!arrayIsEmpty(queue)) {
+            currentThread = arrayPop(queue);
+        }
     }else{
-        currentThread = arrayPop(queue);
+        if (!arrayIsEmpty(queue)) {
+            currentThread = arrayPop(queue);
+        }
     }
-    swapcontext(&currentThread.gen, &currentThread.caller);
+    if (!arrayIsEmpty(queue)) {
+        swapcontext(&currentThread.gen, &currentThread.caller);
+    }
 }
 
 void ult_exit(int status)
