@@ -13,8 +13,8 @@
 #define STACK_SIZE 64*1024
 
 int threadCounter = -1;
-array_hdr_t queue;
-array_hdr_t finishedThreads;
+array_hdr_t* queue;
+array_hdr_t* finishedThreads;
 
 /* thread control block */
 typedef struct tcb_s
@@ -29,11 +29,10 @@ typedef struct tcb_s
 } tcb_t;
 
 tcb_t* current_thread;
+tcb_t* finishedThreads;
 
 void ult_init(ult_f f)
 {
-    
-    tcb_t* finishedThreads;
     arrayInit(finishedThreads);
     threadCounter = 1;
     // create the new stack
