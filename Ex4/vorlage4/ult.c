@@ -18,7 +18,7 @@ array_hdr_t queue;
 /* thread control block */
 typedef struct tcb_s
 {
-	ucontext_t caller, gen;
+    ucontext_t caller, gen;
     int tid;
     char* status;
 	void* yield;
@@ -31,9 +31,15 @@ tcb_t* current_thread;
 
 void ult_init(ult_f f)
 {
-    threadCounter = 0;
-
-
+    threadCounter = 1;
+    // create the new stack
+    current_thread->gen.uc_link = 0;
+    current_thread->gen.uc_stack.ss_flags = 0;
+    current_thread->gen.uc_stack.ss_size = STACK_SIZE;
+    current_thread->gen.uc_stack.ss_sp = current_thread->mem;
+    current_thread->status = "ready";
+    current_thread->tid = threadCounter;
+    
 }
 
 int ult_spawn(ult_f f)
@@ -59,20 +65,20 @@ int ult_spawn(ult_f f)
     makecontext(&current_thread->gen, f, 0);
     
     // use threadCounter as thread id
-	return threadCounter;
+    return threadCounter;
 }
 
 void ult_yield()
 {
-	current_thread->status = "wait";
-	swapcontext(&current_thread->gen, &current_thread->caller);
+    current_thread->status = "wait";
+    swapcontext(&current_thread->gen, &current_thread->caller);
 }
 
 void ult_exit(int status)
 {
     if (status == 0)
-        current_thread->status = "done";
-        current_thread->exitcode = status;
+    {current_thread->status = "done";
+        current_thread->exitcode = status;}
     else
         queue.arrayPush(current_thread->gen);
 
@@ -80,11 +86,10 @@ void ult_exit(int status)
 
 int ult_join(int tid, int* status)
 {
-
 	return -1;
 }
 
 ssize_t ult_read(int fd, void* buf, size_t size)
 {
-	return 0;
+    return 0;
 }
