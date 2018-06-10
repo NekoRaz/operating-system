@@ -34,6 +34,7 @@ void ult_init(ult_f f)
     threadCounter = 1;
     // create the new stack
     current_thread->gen.uc_link = 0;
+    
     current_thread->gen.uc_stack.ss_flags = 0;
     current_thread->gen.uc_stack.ss_size = STACK_SIZE;
     current_thread->gen.uc_stack.ss_sp = current_thread->mem;
