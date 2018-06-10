@@ -76,8 +76,8 @@ void ult_yield()
 
 void ult_exit(int status)
 {
-        current_thread->status = "done";
-        current_thread->exitcode = status;
+    current_thread->status = "done";
+    current_thread->exitcode = status;
 }
 
 int ult_join(int tid, int* status)
