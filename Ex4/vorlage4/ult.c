@@ -12,11 +12,13 @@
 
 #define STACK_SIZE 64*1024
 
+int threadCounter = -1;
 
 /* thread control block */
 typedef struct tcb_s
 {
 	ucontext_t caller, gen;
+    tid;
 	void* yield;
 	char mem[STACK_SIZE];
 	/* data needed to restore the context */
@@ -24,13 +26,16 @@ typedef struct tcb_s
 
 void ult_init(ult_f f)
 {
-
+    threadCounter = 0;
 
 	return 0;
 }
 
 int ult_spawn(ult_f f)
 {
+    // increase thread counter
+    threadCounter++;
+    
     // initialize the context by cloning ours
     getcontext(&self->gen);
     
@@ -39,13 +44,14 @@ int ult_spawn(ult_f f)
     self->gen.uc_stack.ss_flags = 0;
     self->gen.uc_stack.ss_size = STACK_SIZE;
     self->gen.uc_stack.ss_sp = self->mem;
+    self->tid = threadCounter;
     
     if (self->gen.uc_stack.ss_sp == NULL)
         return -1;
     
     // modify the context
     makecontext(&self->gen, func, 0);
-	return 0;		
+	return threadCounter;
 }
 
 void ult_yield()
