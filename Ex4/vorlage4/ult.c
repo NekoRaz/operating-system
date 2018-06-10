@@ -76,17 +76,8 @@ void ult_yield()
 
 void ult_exit(int status)
 {
-    if (status == 0)
-    {
         current_thread->status = "done";
         current_thread->exitcode = status;
-    }
-    else
-    {
-        current_thread->status = "ready";
-        queue.arrayPush(current_thread->gen);
-    }
-
 }
 
 int ult_join(int tid, int* status)
