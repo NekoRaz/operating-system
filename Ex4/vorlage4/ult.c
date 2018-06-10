@@ -75,8 +75,7 @@ int ult_spawn(ult_f f)
 
 void ult_yield()
 {
-    if(strncmp("wait",current_thread-> status , 4) == 0)
-        current_thread->status = "wait";
+    if(!strncmp("done",current_thread-> status , 4) == 0) current_thread->status = "wait";
     swapcontext(&current_thread->gen, &current_thread->caller);
 }
 
