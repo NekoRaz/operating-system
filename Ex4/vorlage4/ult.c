@@ -29,7 +29,7 @@ typedef struct tcb_s
 } tcb_t;
 
 tcb_t* current_thread;
-tcb_t* finishedThreads;
+//tcb_t* finishedThreads;
 
 void ult_init(ult_f f)
 {
