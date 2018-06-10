@@ -20,7 +20,7 @@ typedef struct tcb_s
     ucontext_t caller, gen;
     int tid;
     char* status;
-    void* yield;
+    //void* yield;
     char mem[STACK_SIZE];
 } tcb_t;
 
@@ -34,18 +34,23 @@ tcb_t* current_thread;
 
 void ult_init(ult_f f)
 {
+    threadCounter = 1;
+
+    //init all
     arrayInit(queue);
     arrayInit(queueFinished);
-    threadCounter = 1;
-    // create the new stack
-    current_thread->gen.uc_link = 0;
+    getcontext(&current_thread->gen);
 
+    // create the new stack
+    current_thread->tid = threadCounter;
+    current_thread->gen.uc_link = 0;
     current_thread->gen.uc_stack.ss_flags = 0;
     current_thread->gen.uc_stack.ss_size = STACK_SIZE;
     current_thread->gen.uc_stack.ss_sp = current_thread->mem;
     current_thread->status = "ready";
-    current_thread->tid = threadCounter;
+    current_thread->exitCode = 0;
 
+    makecontext(&current_thread->gen, f,0);
 }
 
 int ult_spawn(ult_f f)
