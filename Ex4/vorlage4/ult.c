@@ -12,9 +12,7 @@
 
 #define STACK_SIZE 64*1024
 
-int threadCounter = -1;
-array_hdr_t* queue;
-array_hdr_t* queueFinished;
+
 
 /* thread control block */
 typedef struct tcb_s
@@ -28,12 +26,15 @@ typedef struct tcb_s
     char mem[STACK_SIZE];
 } tcb_t;
 
+int threadCounter = -1;
+array_hdr_t* queue;
+tcb_t* queueFinished;
 tcb_t* current_thread;
-tcb_t* finishedThreads;
+//tcb_t* queueFinished;
 
 void ult_init(ult_f f)
 {
-    arrayInit(finishedThreads);
+    arrayInit(queueFinished);
     threadCounter = 1;
     // create the new stack
     current_thread->gen.uc_link = 0;
@@ -83,7 +84,7 @@ void ult_exit(int status)
 {
     current_thread->status = "done";
     current_thread->exitcode = status;
-    arrayPush(queueFinished) = current_thread;
+    arrayPush(queueFinished) = *current_thread;
     ult_yield();
 }
 
