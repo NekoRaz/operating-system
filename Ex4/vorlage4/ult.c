@@ -10,6 +10,9 @@
 #define _XOPEN_SOURCE
 #include <ucontext.h>
 
+#define STACK_SIZE 64*1024
+
+
 /* thread control block */
 typedef struct tcb_s
 {
