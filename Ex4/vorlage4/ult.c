@@ -20,7 +20,7 @@ array_hdr_t finishedThreads;
 typedef struct tcb_s
 {
     /* data needed to restore the context */
-    int* exitcode;
+    int exitcode;
     ucontext_t caller, gen;
     int tid;
     char* status;
@@ -32,6 +32,9 @@ tcb_t* current_thread;
 
 void ult_init(ult_f f)
 {
+    
+    tcb_t* finishedThreads;
+    arrayInit(finishedThreads);
     threadCounter = 1;
     // create the new stack
     current_thread->gen.uc_link = 0;
@@ -72,21 +75,22 @@ int ult_spawn(ult_f f)
 
 void ult_yield()
 {
-    if(current_thread-> status != "done")
-        current_thread->status = "wait";
-    swapcontext(&current_thread->gen, &current_thread->caller);
+//    if(current_thread-> status != "done")
+//        current_thread->status = "wait";
+//    swapcontext(&current_thread->gen, &current_thread->caller);
 }
 
 void ult_exit(int status)
 {
     current_thread->status = "done";
     current_thread->exitcode = status;
+    arrayPush(finishedThreads) = current_thread;
     ult_yield();
 }
 
 int ult_join(int tid, int* status)
 {
-    array_hdr_t tempArray = ;
+//    array_hdr_t tempArray = ;
 	return -1;
 }
 
