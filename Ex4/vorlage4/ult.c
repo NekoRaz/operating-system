@@ -20,7 +20,24 @@ typedef struct tcb_s
 } tcb_t;
 
 void ult_init(ult_f f)
-{}
+{
+	// initialize the context by cloning ours
+	getcontext(&self->gen);
+
+	// create the new stack
+	self->gen.uc_link = 0;
+	self->gen.uc_stack.ss_flags = 0;
+	self->gen.uc_stack.ss_size = STACK_SIZE;
+	self->gen.uc_stack.ss_sp = self->mem;
+
+	if (self->gen.uc_stack.ss_sp == NULL)
+		return -1;
+
+	// modify the context
+	makecontext(&self->gen, func, 0);
+
+	return 0;
+}
 
 int ult_spawn(ult_f f)
 {
