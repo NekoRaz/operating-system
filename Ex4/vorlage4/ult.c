@@ -14,7 +14,7 @@
 
 int threadCounter = -1;
 array_hdr_t* queue;
-array_hdr_t* finishedThreads;
+array_hdr_t* queueFinished;
 
 /* thread control block */
 typedef struct tcb_s
@@ -83,7 +83,7 @@ void ult_exit(int status)
 {
     current_thread->status = "done";
     current_thread->exitcode = status;
-    arrayPush(finishedThreads) = current_thread;
+    arrayPush(queueFinished) = current_thread;
     ult_yield();
 }
 
