@@ -53,6 +53,8 @@ int ult_spawn(ult_f f)
     
     // modify the context
     makecontext(&self->gen, func, 0);
+    
+    // use threadCounter as thread id
 	return threadCounter;
 }
 
