@@ -20,7 +20,7 @@ typedef struct tcb_s
     ucontext_t caller, gen;
     int tid;
     char* status;
-    void* yield;
+    //void* yield;
     char mem[STACK_SIZE];
 } tcb_t;
 
@@ -34,6 +34,9 @@ tcb_t current_thread;
 
 void ult_init(ult_f f)
 {
+    threadCounter = 1;
+
+    //init all
     arrayInit(queue);
     arrayInit(queueFinished);
     threadCounter = 1;
