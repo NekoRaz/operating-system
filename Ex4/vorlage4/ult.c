@@ -23,6 +23,7 @@ typedef struct tcb_s
     char* status;
 	void* yield;
 	char mem[STACK_SIZE];
+	int* exitcode;
 	/* data needed to restore the context */
 } tcb_t;
 
@@ -68,10 +69,18 @@ void ult_yield()
 }
 
 void ult_exit(int status)
-{}
+{
+    if (status == 0)
+        current_thread->status = "done";
+        current_thread->exitcode = status;
+    else
+        queue.arrayPush(current_thread->gen);
+
+}
 
 int ult_join(int tid, int* status)
 {
+
 	return -1;
 }
 
