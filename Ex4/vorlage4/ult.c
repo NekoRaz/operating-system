@@ -12,8 +12,6 @@
 
 #define STACK_SIZE 64*1024
 
-
-
 /* thread control block */
 typedef struct tcb_s
 {
@@ -27,13 +25,16 @@ typedef struct tcb_s
 } tcb_t;
 
 int threadCounter = -1;
-array_hdr_t* queue;
+
+tcb_t* queue;
 tcb_t* queueFinished;
+
 tcb_t* current_thread;
 //tcb_t* queueFinished;
 
 void ult_init(ult_f f)
 {
+    arrayInit(queue);
     arrayInit(queueFinished);
     threadCounter = 1;
     // create the new stack
@@ -90,7 +91,29 @@ void ult_exit(int status)
 
 int ult_join(int tid, int* status)
 {
-//    array_hdr_t tempArray = ;
+    tcb_t* tempArray;
+    arrayInit(tempArray);
+    int inArray = 0;
+    
+    while (!arrayIsEmpty(queueFinished)){
+        tcb_t tempFinishedThread = arrayPop(queueFinished);
+        if (tid == tempFinishedThread.tid) {
+            inArray = 1;
+        }
+        arrayPush(tempArray) = tempFinishedThread;
+    }
+    
+    if (inArray == 1) {
+        
+    }
+    
+    while (arrayIsEmpty(tempArray)) {
+        tcb_t tempFinishedThread = arrayPop(tempArray);
+        arrayPush(queueFinished) = tempFinishedThread;
+    }
+    
+    arrayRelease(tempArray);
+    
 	return -1;
 }
 
