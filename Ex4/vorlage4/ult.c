@@ -39,23 +39,23 @@ void ult_init(ult_f f)
     threadCounter = 1;
     // create the new stack
     current_thread->gen.uc_link = 0;
-    
+
     current_thread->gen.uc_stack.ss_flags = 0;
     current_thread->gen.uc_stack.ss_size = STACK_SIZE;
     current_thread->gen.uc_stack.ss_sp = current_thread->mem;
     current_thread->status = "ready";
     current_thread->tid = threadCounter;
-    
+
 }
 
 int ult_spawn(ult_f f)
 {
     // increase thread counter
     threadCounter++;
-    
+
     // initialize the context by cloning ours
     getcontext(&current_thread->gen);
-    
+
     // create the new stack
     current_thread->gen.uc_link = 0;
     current_thread->gen.uc_stack.ss_flags = 0;
@@ -63,21 +63,20 @@ int ult_spawn(ult_f f)
     current_thread->gen.uc_stack.ss_sp = current_thread->mem;
     current_thread->status = "ready";
     current_thread->tid = threadCounter;
-    
+
     if (current_thread->gen.uc_stack.ss_sp == NULL)
         return -1;
-    
+
     // modify the context
     makecontext(&current_thread->gen, f, 0);
-    
+
     // use threadCounter as thread id
     return threadCounter;
 }
 
 void ult_yield()
 {
-    if(strncmp("wait",current_thread-> status , 4) == 0)
-        current_thread->status = "wait";
+    if(!strncmp("done",current_thread-> status , 4) == 0) current_thread->status = "wait";
     swapcontext(&current_thread->gen, &current_thread->caller);
 }
 
