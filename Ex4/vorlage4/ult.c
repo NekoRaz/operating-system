@@ -25,6 +25,7 @@ typedef struct tcb_s
 } tcb_t;
 
 int threadCounter;
+fd_set readSet;
 
 tcb_t* queue;
 tcb_t* queueFinished;
@@ -90,6 +91,8 @@ void ult_yield()
         currentThread.status = "wait";
         arrayPush(queue) = currentThread;
         currentThread = arrayPop(queue);
+    }else{
+        currentThread = arrayPop(queue);
     }
     swapcontext(&currentThread.gen, &currentThread.caller);
 }
@@ -131,12 +134,30 @@ int ult_join(int tid, int* status)
         ult_yield;
     }
     
-
-    
 	return -1;
 }
 
 ssize_t ult_read(int fd, void* buf, size_t size)
 {
+    int ready;
+    struct timeval timeout;
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 50;
+    
+    if (!FD_ISSET(fd, &readSet)) {
+        FD_SET(fd, &readSet);
+    }
+    
+    ready = select(fd + 1, &readSet, NULL, NULL, &timeout);
+    
+    if (ready) {
+        currentThread.status = "ready";
+        read(fd, buf, size);
+        return 0;
+    }else{
+        currentThread.status = "block";
+        ult_yield();
+    }
+    
     return 0;
 }
