@@ -19,6 +19,8 @@ array_hdr_t queue;
 typedef struct tcb_s
 {
 	ucontext_t caller, gen;
+    int tid;
+    char* status;
 	void* yield;
 	char mem[STACK_SIZE];
 	/* data needed to restore the context */
@@ -39,21 +41,21 @@ int ult_spawn(ult_f f)
     threadCounter++;
     
     // initialize the context by cloning ours
-    getcontext(&self->gen);
+    getcontext(&current_thread->gen);
     
     // create the new stack
-    self->gen.uc_link = 0;
-    self->gen.uc_stack.ss_flags = 0;
-    self->gen.uc_stack.ss_size = STACK_SIZE;
-    self->gen.uc_stack.ss_sp = self->mem;
-    self->gen.status = "ready";
-    self->gen.tid = threadCounter
+    current_thread->gen.uc_link = 0;
+    current_thread->gen.uc_stack.ss_flags = 0;
+    current_thread->gen.uc_stack.ss_size = STACK_SIZE;
+    current_thread->gen.uc_stack.ss_sp = current_thread->mem;
+    current_thread->status = "ready";
+    current_thread->tid = threadCounter;
     
-    if (self->gen.uc_stack.ss_sp == NULL)
+    if (current_thread->gen.uc_stack.ss_sp == NULL)
         return -1;
     
     // modify the context
-    makecontext(&self->gen, func, 0);
+    makecontext(&current_thread->gen, f, 0);
     
     // use threadCounter as thread id
 	return threadCounter;
@@ -61,7 +63,7 @@ int ult_spawn(ult_f f)
 
 void ult_yield()
 {
-	current_thread->yield = yield;
+	current_thread->status = "wait";
 	swapcontext(&current_thread->gen, &current_thread->caller);
 }
 
