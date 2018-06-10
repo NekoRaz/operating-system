@@ -72,7 +72,8 @@ int ult_spawn(ult_f f)
 
 void ult_yield()
 {
-    current_thread->status = "wait";
+    if(current_thread-> status != "done")
+        current_thread->status = "wait";
     swapcontext(&current_thread->gen, &current_thread->caller);
 }
 
@@ -80,6 +81,7 @@ void ult_exit(int status)
 {
     current_thread->status = "done";
     current_thread->exitcode = status;
+    ult_yield();
 }
 
 int ult_join(int tid, int* status)
