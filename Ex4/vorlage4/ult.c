@@ -84,6 +84,7 @@ void ult_exit(int status)
 
 int ult_join(int tid, int* status)
 {
+    array_hdr_t tempArray = ;
 	return -1;
 }
 
