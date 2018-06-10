@@ -16,7 +16,7 @@
 typedef struct tcb_s
 {
     /* data needed to restore the context */
-    int exitcode;
+    int exitCode;
     ucontext_t caller, gen;
     int tid;
     char* status;
@@ -70,6 +70,8 @@ int ult_spawn(ult_f f)
     // modify the context
     makecontext(&current_thread->gen, f, 0);
 
+    arrayPush(queue) = current_thread;
+    
     // use threadCounter as thread id
     return threadCounter;
 }
@@ -83,7 +85,7 @@ void ult_yield()
 void ult_exit(int status)
 {
     current_thread->status = "done";
-    current_thread->exitcode = status;
+    current_thread->exitCode = status;
     arrayPush(queueFinished) = *current_thread;
     ult_yield();
 }
@@ -93,17 +95,15 @@ int ult_join(int tid, int* status)
     tcb_t* tempArray;
     arrayInit(tempArray);
     int inArray = 0;
+    int exitCode = 0;
     
     while (!arrayIsEmpty(queueFinished)){
         tcb_t tempFinishedThread = arrayPop(queueFinished);
         if (tid == tempFinishedThread.tid) {
             inArray = 1;
+            exitCode = tempFinishedThread.exitCode;
         }
         arrayPush(tempArray) = tempFinishedThread;
-    }
-    
-    if (inArray == 1) {
-        
     }
     
     while (arrayIsEmpty(tempArray)) {
@@ -112,6 +112,14 @@ int ult_join(int tid, int* status)
     }
     
     arrayRelease(tempArray);
+    
+    if (inArray == 1) {
+        return exitCode;
+    }else{
+        ult_yield;
+    }
+    
+
     
 	return -1;
 }
