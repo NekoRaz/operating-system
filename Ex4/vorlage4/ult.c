@@ -18,13 +18,13 @@ array_hdr_t queue;
 /* thread control block */
 typedef struct tcb_s
 {
+    /* data needed to restore the context */
+    int* exitcode;
     ucontext_t caller, gen;
     int tid;
     char* status;
-	void* yield;
-	char mem[STACK_SIZE];
-	int* exitcode;
-	/* data needed to restore the context */
+    void* yield;
+    char mem[STACK_SIZE];
 } tcb_t;
 
 tcb_t* current_thread;
@@ -78,10 +78,15 @@ void ult_yield()
 void ult_exit(int status)
 {
     if (status == 0)
-    {current_thread->status = "done";
-        current_thread->exitcode = status;}
+    {
+        current_thread->status = "done";
+        current_thread->exitcode = status;
+    }
     else
+    {
+        current_thread->status = "ready";
         queue.arrayPush(current_thread->gen);
+    }
 
 }
 
