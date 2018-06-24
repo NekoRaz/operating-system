@@ -6,15 +6,30 @@
 #include <time.h>
 
 typedef struct collector_s{
-//    pthread_mutex_t* fork[2];
+    //    pthread_mutex_t* fork[2];
     unsigned int funds;
     unsigned int inboundCollections;
     unsigned int outboundCollections;
 }collector_t;
 
 static void* collector(void* data){
-    //    collector_t* self = data;
-    printf("Hello World\n");
+    collector_t* self = data;
+    
+    while (1) {
+        // no cancelling in the critical section
+        pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
+        
+        
+        
+        ++self->inboundCollections;
+        
+        // cancelling allowed
+        pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+        pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
+        pthread_testcancel();
+        sched_yield();
+    }
+    
     return NULL;
 }
 
@@ -52,7 +67,7 @@ int main(int argc, const char* argv[])
     
     collector_t coll[collectors];
     pthread_t threads[collectors];
-//    pthread_mutex_t forks[collectors];
+    //    pthread_mutex_t forks[collectors];
     
     for (int i = 0; i<collectors; i++) {
         coll[i].funds = funds;
@@ -63,7 +78,7 @@ int main(int argc, const char* argv[])
     for (int i = 0; i<collectors; i++) {
         pthread_create(&threads[i], NULL, &collector, &coll[i]);
     }
-
+    
     sleep(duration);
     
     int totalInboundCollections = 0;
