@@ -5,6 +5,9 @@
 #include <unistd.h>
 #include <time.h>
 
+int hasEnoughFunds(void* data);
+int pay(void* data);
+
 typedef struct collector_s{
     //    pthread_mutex_t* fork[2];
     unsigned int funds;
@@ -19,9 +22,12 @@ static void* collector(void* data){
         // no cancelling in the critical section
         pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
         
-        
-        
         ++self->inboundCollections;
+        if(hasEnoughFunds(self) == 1){
+            int amount = pay(self);
+            printf("amount: %i\n", amount);
+            printf("funds: %i\n", self->funds);
+        }
         
         // cancelling allowed
         pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
@@ -31,6 +37,30 @@ static void* collector(void* data){
     }
     
     return NULL;
+}
+
+int hasEnoughFunds(void* data){
+    collector_t* self = data;
+    int enough;
+    if (self->funds>100) {
+        enough = 1;
+    }else{
+        enough = 0;
+    }
+    return enough;
+}
+
+int pay(void* data){
+    collector_t* self = data;
+    int amount = 0;
+    if (self->funds/2 < 100) {
+        amount = 100;
+    }else{
+        amount = self->funds/2;
+    }
+    self->funds = self->funds-amount;
+    
+    return amount;
 }
 
 int main(int argc, const char* argv[])
