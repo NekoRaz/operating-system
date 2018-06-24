@@ -7,27 +7,45 @@
 
 int hasEnoughFunds(void* data);
 int pay(void* data);
+int getRandomOtherCollector(int notThis);
+
+//collector_t coll[];
+//pthread_t threads[];
 
 typedef struct collector_s{
     //    pthread_mutex_t* fork[2];
+    unsigned int id;
     unsigned int funds;
     unsigned int inboundCollections;
     unsigned int outboundCollections;
 }collector_t;
 
+collector_t *coll;
+int collectors;
+
 static void* collector(void* data){
     collector_t* self = data;
     
+//    pthread_t pthread_self(void);
+//    for (int i = 0; i < collectors; i++) {
+//        printf("coll id: %u\n", coll[i].id);
+//    }
+//    printf("\n");
     while (1) {
         // no cancelling in the critical section
         pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
         
-        ++self->inboundCollections;
+//        ++self->inboundCollections;
         if(hasEnoughFunds(self) == 1){
+//            printf("pthread_self: %lu\n", pthread_self());
             int amount = pay(self);
+            printf("collector id: %i\n", self->id);
             printf("amount: %i\n", amount);
             printf("funds: %i\n", self->funds);
+            printf("random: %i\n", getRandomOtherCollector(self->id));
         }
+        
+        
         
         // cancelling allowed
         pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
@@ -37,6 +55,14 @@ static void* collector(void* data){
     }
     
     return NULL;
+}
+
+int getRandomOtherCollector(int notThis){
+    int ran = rand() % (collectors + 1);
+    if(ran == notThis){
+        ran = getRandomOtherCollector(notThis);
+    }
+    return ran;
 }
 
 int hasEnoughFunds(void* data){
@@ -66,7 +92,7 @@ int pay(void* data){
 int main(int argc, const char* argv[])
 {
     double duration = 2; // default duration in seconds
-    int collectors = 5;  // default number of tax collectors
+    collectors = 5;  // default number of tax collectors
     int funds = 300;     // default funding per collector in Euro
     
     // allow overriding the defaults by the command line arguments
@@ -95,11 +121,14 @@ int main(int argc, const char* argv[])
             return -1;
     }
     
-    collector_t coll[collectors];
+    coll = malloc(sizeof(collector_t) * collectors);
     pthread_t threads[collectors];
+//    coll[collectors];
+//    threads[collectors];
     //    pthread_mutex_t forks[collectors];
     
     for (int i = 0; i<collectors; i++) {
+        coll[i].id = i;
         coll[i].funds = funds;
         coll[i].inboundCollections = 0;
         coll[i].outboundCollections = 0;
