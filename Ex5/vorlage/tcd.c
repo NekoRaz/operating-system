@@ -35,6 +35,18 @@ static void* collector(void* data){
             ++other->outboundCollections;
             self->funds = self->funds + amount;
         }
+        else{
+            
+            while(hasEnoughFunds(other) == 0){
+                pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
+                pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED, NULL);
+                pthread_testcancel();
+            }
+            int amount = pay(other);
+            ++self->inboundCollections;
+            ++other->outboundCollections;
+            self->funds = self->funds + amount;
+        }
         
         // cancelling allowed
         pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
@@ -57,7 +69,7 @@ int getRandomOtherCollector(int notThis){
 int hasEnoughFunds(void* data){
     collector_t* self = data;
     int enough;
-    if (self->funds>100) {
+    if (self->funds>=100) {
         enough = 1;
     }else{
         enough = 0;
@@ -80,10 +92,10 @@ int pay(void* data){
 
 int main(int argc, const char* argv[])
 {
-    double duration = 2; // default duration in seconds
+    double duration = 10; // default duration in seconds
     collectors = 5;  // default number of tax collectors
     int funds = 300;     // default funding per collector in Euro
-    
+
     // allow overriding the defaults by the command line arguments
     switch (argc)
     {
@@ -133,8 +145,10 @@ int main(int argc, const char* argv[])
     
     for (int i = 0; i < collectors; ++i)
     {
+        printf("try end");
         pthread_cancel(threads[i]);
         pthread_join(threads[i], NULL);
+
         
         expectedMoney = expectedMoney + funds;
         totalInboundCollections = totalInboundCollections + coll[i].inboundCollections;
