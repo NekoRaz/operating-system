@@ -9,9 +9,6 @@ int hasEnoughFunds(void* data);
 int pay(void* data);
 int getRandomOtherCollector(int notThis);
 
-//collector_t coll[];
-//pthread_t threads[];
-
 typedef struct collector_s{
     //    pthread_mutex_t* fork[2];
     unsigned int id;
@@ -26,26 +23,18 @@ int collectors;
 static void* collector(void* data){
     collector_t* self = data;
     
-//    pthread_t pthread_self(void);
-//    for (int i = 0; i < collectors; i++) {
-//        printf("coll id: %u\n", coll[i].id);
-//    }
-//    printf("\n");
     while (1) {
         // no cancelling in the critical section
         pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, NULL);
         
-//        ++self->inboundCollections;
-        if(hasEnoughFunds(self) == 1){
-//            printf("pthread_self: %lu\n", pthread_self());
-            int amount = pay(self);
-            printf("collector id: %i\n", self->id);
-            printf("amount: %i\n", amount);
-            printf("funds: %i\n", self->funds);
-            printf("random: %i\n", getRandomOtherCollector(self->id));
+        int randomOtherCollector = getRandomOtherCollector(self->id);
+        collector_t* other = &coll[randomOtherCollector];
+        if(hasEnoughFunds(other) == 1){
+            int amount = pay(other);
+            ++self->inboundCollections;
+            ++other->outboundCollections;
+            self->funds = self->funds + amount;
         }
-        
-        
         
         // cancelling allowed
         pthread_setcancelstate(PTHREAD_CANCEL_ENABLE, NULL);
@@ -123,9 +112,6 @@ int main(int argc, const char* argv[])
     
     coll = malloc(sizeof(collector_t) * collectors);
     pthread_t threads[collectors];
-//    coll[collectors];
-//    threads[collectors];
-    //    pthread_mutex_t forks[collectors];
     
     for (int i = 0; i<collectors; i++) {
         coll[i].id = i;
